@@ -1,0 +1,26 @@
+{
+  "id": "/gastolibre/",
+  "name": "GastoLibre · control de gastos",
+  "short_name": "GastoLibre",
+  "description": "Anota lo que gastas en dos toques. Sin cuentas, sin bancos y sin anuncios: tus datos se quedan en tu dispositivo.",
+  "lang": "es",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#0a0e12",
+  "theme_color": "#0a0e12",
+  "categories": ["finance", "productivity", "lifestyle"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Anotar un gasto", "url": "./index.html#anotar", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Ver resumen", "url": "./index.html#resumen" }
+  ]
+}
