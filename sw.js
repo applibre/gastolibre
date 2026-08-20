@@ -1,6 +1,6 @@
 /* GastoLibre · funciona sin internet.
    Red primero (para recibir mejoras) y caché como red de seguridad. */
-const CACHE = 'gastolibre-v2';
+const CACHE = 'gastolibre-v3';
 const ARCHIVOS = [
   './', './index.html', './manifest.json',
   './css/style.css',
@@ -11,7 +11,13 @@ const ARCHIVOS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE)
+      // pedir cada archivo saltando la caché HTTP: si no, una versión nueva
+      // del service worker puede guardar archivos viejos y el bug persiste
+      .then(c => c.addAll(ARCHIVOS.map(u => new Request(u, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', e => {

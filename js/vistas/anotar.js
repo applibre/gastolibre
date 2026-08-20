@@ -55,6 +55,10 @@ const Anotar = (() => {
     c.textContent = (tipo === 'ingreso' ? '+ ' : '') + Dominio.moneyExacto(val, est.ajustes);
     c.classList.toggle('cero', !val);
     c.classList.toggle('ingreso', tipo === 'ingreso' && val > 0);
+    // que un monto largo nunca toque los bordes
+    const n = c.textContent.length;
+    c.classList.toggle('larga', n > 10 && n <= 14);
+    c.classList.toggle('muylarga', n > 14);
 
     $('#p-cuotas').classList.toggle('on', !!cuotasPend);
     $('#p-cuotas').textContent = cuotasPend ? `÷ ${cuotasPend.nCuotas} cuotas` : '÷ Cuotas';

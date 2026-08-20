@@ -128,7 +128,14 @@
   <script src="js/app.js"></script>
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-      navigator.serviceWorker.register('sw.js');
+      navigator.serviceWorker.register('sw.js').then(r => r.update()).catch(() => {});
+      // cuando llega una versión nueva de la app, recargar una sola vez
+      let yaRecargo = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (yaRecargo || !navigator.serviceWorker.controller) return;
+        yaRecargo = true;
+        location.reload();
+      });
     }
   </script>
 </body>

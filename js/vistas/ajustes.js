@@ -201,8 +201,14 @@ const Ajustes = (() => {
   async function pintarArchivo() {
     const caja = document.getElementById('t-archivo');
     if (!caja) return;
-    const v = await Archivo.estadoVinculo();
-    const puedeCompartir = Archivo.soportaCompartir();
+    let v, puedeCompartir;
+    try {
+      v = await Archivo.estadoVinculo();
+      puedeCompartir = Archivo.soportaCompartir();
+    } catch (_) {
+      v = { soportado: false };
+      puedeCompartir = false;
+    }
 
     if (v.soportado && v.vinculado) {
       caja.innerHTML = `
