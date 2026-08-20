@@ -24,7 +24,8 @@ GastoLibre está construida alrededor de esas dos verdades:
 | 💳 **Entiende las compras a meses** | Registra una compra a 3, 6, 12 o 24 meses y descuenta la mensualidad de cada mes. Ninguna app neutral hace esto. |
 | 📅 **Presupuesto quincenal** | Si te pagan por quincena, el presupuesto se reinicia el 1 y el 16. Todas las demás asumen mes. |
 | 🤝 **Sin castigos** | Si dejas de anotar unos días, no hay listas pendientes ni números rojos: te pones al día con un monto aproximado o empiezas fresco. |
-| 🔒 **Tus datos son tuyos** | Todo vive en tu dispositivo. Respaldo en un archivo `.json` o `.csv` cuando quieras. |
+| 🔒 **Tus datos son tuyos** | Todo vive en tu dispositivo. Respaldo en `.json` o `.csv` cuando quieras. |
+| 🔗 **Archivo vinculado** | En computadora puedes enlazar un archivo real (por ejemplo dentro de tu carpeta de Drive) y la app escribe en él cada cambio, sola. En el móvil, envía el respaldo a donde quieras con la hoja de compartir. |
 | ✈️ **Sin internet** | Instálala y úsala en el súper, en el mercado o en el metro. |
 
 ## Cómo funciona por dentro

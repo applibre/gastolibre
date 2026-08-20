@@ -21,32 +21,36 @@ const Exportar = (() => {
 
   /* ---------- JSON: respaldo completo y fiel ---------- */
 
-  function json() {
+  /** El envoltorio estándar de un respaldo: lo usan la descarga,
+      el archivo vinculado y la hoja de compartir. */
+  function sobre() {
     Estado.guardarYa();
-    const est = Estado.leer();
-    const sobre = {
+    return {
       app: APP,
       version: Almacen.VERSION,
       exportado: new Date().toISOString(),
-      datos: est,
+      datos: Estado.leer(),
     };
-    bajar(JSON.stringify(sobre, null, 2), `gastolibre-${Dominio.hoyISO()}.json`, 'application/json');
+  }
+
+  function json() {
+    bajar(JSON.stringify(sobre(), null, 2), `gastolibre-${Dominio.hoyISO()}.json`, 'application/json');
     Estado.marcarRespaldo();
     return true;
   }
 
   /** Comprueba que el archivo sea nuestro antes de tocar nada. */
   function importar(texto) {
-    let sobre;
-    try { sobre = JSON.parse(texto); } catch (_) { throw new Error('El archivo no es un JSON válido.'); }
-    const datos = (sobre && sobre.app === APP && sobre.datos) ? sobre.datos : sobre;
+    let envoltorio;
+    try { envoltorio = JSON.parse(texto); } catch (_) { throw new Error('El archivo no es un JSON válido.'); }
+    const datos = (envoltorio && envoltorio.app === APP && envoltorio.datos) ? envoltorio.datos : envoltorio;
     if (!datos || !Array.isArray(datos.movimientos)) {
       throw new Error('Ese archivo no parece un respaldo de GastoLibre.');
     }
     Estado.reemplazar(datos);
     return {
       movimientos: datos.movimientos.filter(m => !m.deleted).length,
-      fecha: sobre && sobre.exportado ? sobre.exportado.slice(0, 10) : null,
+      fecha: envoltorio && envoltorio.exportado ? envoltorio.exportado.slice(0, 10) : null,
     };
   }
 
@@ -95,5 +99,5 @@ const Exportar = (() => {
     return Dominio.diasEntre(ultimo, Dominio.hoyISO());
   }
 
-  return { json, csv, importar, diasSinRespaldo };
+  return { sobre, json, csv, importar, diasSinRespaldo };
 })();

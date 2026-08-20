@@ -113,6 +113,11 @@ const Ajustes = (() => {
         </div>
       </div>
 
+      <div class="tarjeta" id="t-archivo">
+        <h3>Archivo del dispositivo</h3>
+        <p class="cap">Cargando…</p>
+      </div>
+
       <div class="tarjeta">
         <h3>Tus datos</h3>
         <p class="cap">${nMovs} ${nMovs === 1 ? 'movimiento guardado' : 'movimientos guardados'} · ${kb} KB en este dispositivo${
@@ -142,6 +147,7 @@ const Ajustes = (() => {
     `;
 
     enlazar(est);
+    pintarArchivo();
   }
 
   function enlazar(est) {
@@ -188,6 +194,109 @@ const Ajustes = (() => {
     $('[data-csv]').onclick = () => { const n = Exportar.csv(); UI.tosti(`${n} movimientos exportados`, 'buena'); };
     $('[data-import]').onclick = () => $('#importar-archivo').click();
     $('[data-borrar]').onclick = borrarTodo;
+  }
+
+  /* ---------- archivo vinculado del dispositivo ---------- */
+
+  async function pintarArchivo() {
+    const caja = document.getElementById('t-archivo');
+    if (!caja) return;
+    const v = await Archivo.estadoVinculo();
+    const puedeCompartir = Archivo.soportaCompartir();
+
+    if (v.soportado && v.vinculado) {
+      caja.innerHTML = `
+        <h3>Archivo del dispositivo</h3>
+        <p class="cap">Cada cambio se escribe también en <b>${esc(v.nombre)}</b>.
+          Ese archivo es tuyo: vive fuera del navegador y sobrevive aunque borres los datos del sitio.</p>
+        <div class="aviso verde" style="margin-top:0">
+          <span>${v.permiso ? '🔗' : '⚠️'}</span>
+          <span>${v.permiso
+            ? 'Vinculado y guardando solo.'
+            : 'El navegador pide permiso otra vez para poder escribir.'}</span>
+        </div>
+        <div class="opciones" style="margin-top:10px">
+          ${!v.permiso ? `<button class="opcion" data-reconectar><span class="ic">🔓</span>
+            <span>Dar permiso otra vez<small>Sin esto no puede guardar en el archivo</small></span></button>` : ''}
+          <button class="opcion" data-cargar><span class="ic">📂</span>
+            <span>Cargar desde el archivo<small>Trae a la app lo que haya guardado ahí</small></span></button>
+          <button class="opcion" data-desvincular><span class="ic">🔌</span>
+            <span>Desvincular<small>La app seguirá guardando en el navegador</small></span></button>
+        </div>`;
+    } else if (v.soportado) {
+      caja.innerHTML = `
+        <h3>Archivo del dispositivo</h3>
+        <p class="cap">Puedes elegir un archivo de tu equipo y la app escribirá en él cada cambio,
+          automáticamente. Así tus datos dejan de depender del navegador.</p>
+        <div class="opciones">
+          <button class="opcion" data-vincular><span class="ic">🔗</span>
+            <span>Vincular un archivo<small>Elige dónde guardarlo (por ejemplo, tu carpeta de Drive)</small></span></button>
+        </div>`;
+    } else {
+      caja.innerHTML = `
+        <h3>Guardar fuera del navegador</h3>
+        <p class="cap">Los navegadores de móvil todavía no permiten que una app web escriba sola
+          en un archivo del teléfono. Mientras tanto, esto es lo que sí protege tus datos:</p>
+        <div class="opciones">
+          ${puedeCompartir ? `<button class="opcion" data-compartir><span class="ic">📤</span>
+            <span>Enviar respaldo a…<small>Drive, WhatsApp, correo: donde tú quieras guardarlo</small></span></button>` : ''}
+          <button class="opcion" data-descargar><span class="ic">⬇️</span>
+            <span>Guardar en Descargas<small>Queda como archivo en el teléfono, aunque borres la app</small></span></button>
+        </div>
+        <div class="aviso" style="margin-top:12px">
+          <span>📲</span><span><b>Instálala en la pantalla de inicio.</b> Es lo que más protege
+          el registro: una app instalada conserva sus datos aunque pasen semanas sin abrirla.</span>
+        </div>`;
+    }
+
+    const al = (sel, fn) => { const b = caja.querySelector(sel); if (b) b.onclick = fn; };
+
+    al('[data-vincular]', async () => {
+      try {
+        const nombre = await Archivo.vincular();
+        UI.tosti(`Vinculado a ${nombre}`, 'buena');
+        pintar();
+      } catch (e) {
+        if (e && e.name !== 'AbortError') UI.tosti('No se pudo vincular el archivo', 'mala');
+      }
+    });
+
+    al('[data-reconectar]', async () => {
+      const r = await Archivo.escribir(true);
+      UI.tosti(r === 'ok' ? 'Archivo reconectado' : 'No se dio el permiso', r === 'ok' ? 'buena' : 'mala');
+      pintar();
+    });
+
+    al('[data-cargar]', async () => {
+      const ok = await UI.confirmar({
+        titulo: '¿Cargar desde el archivo?',
+        sub: 'Lo que hay ahora en la app se reemplaza por el contenido del archivo.',
+        aceptar: 'Cargar', peligro: true,
+      });
+      if (!ok) return;
+      try {
+        const r = await Archivo.leer();
+        App.reiniciarInterfaz();
+        UI.tosti(`Cargados ${r.movimientos} movimientos`, 'buena');
+      } catch (e) { UI.tosti(e.message || 'No se pudo leer el archivo', 'mala'); }
+    });
+
+    al('[data-desvincular]', async () => {
+      await Archivo.desvincular();
+      UI.tosti('Archivo desvinculado');
+      pintar();
+    });
+
+    al('[data-compartir]', async () => {
+      try {
+        const ok = await Archivo.compartir();
+        if (ok) { UI.tosti('Respaldo enviado', 'buena'); setTimeout(pintar, 500); }
+      } catch (e) {
+        if (e && e.name !== 'AbortError') UI.tosti('No se pudo compartir', 'mala');
+      }
+    });
+
+    al('[data-descargar]', () => { Exportar.json(); UI.tosti('Guardado en Descargas', 'buena'); setTimeout(pintar, 400); });
   }
 
   /* ---------- categorías ---------- */

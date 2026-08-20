@@ -1,11 +1,11 @@
 /* GastoLibre · funciona sin internet.
    Red primero (para recibir mejoras) y caché como red de seguridad. */
-const CACHE = 'gastolibre-v1';
+const CACHE = 'gastolibre-v2';
 const ARCHIVOS = [
   './', './index.html', './manifest.json',
   './css/style.css',
   './js/dominio.js', './js/almacen.js', './js/estado.js', './js/interfaz.js',
-  './js/exportar.js', './js/app.js',
+  './js/exportar.js', './js/archivo.js', './js/app.js',
   './js/vistas/anotar.js', './js/vistas/resumen.js', './js/vistas/ajustes.js', './js/vistas/bienvenida.js',
   './icon-192.png', './icon-512.png', './maskable-192.png', './maskable-512.png', './apple-touch-180.png',
 ];

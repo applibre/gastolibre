@@ -18,7 +18,10 @@ const Estado = (() => {
   function cambiar(fn) {
     fn(datos);
     clearTimeout(pendiente);
-    pendiente = setTimeout(() => Almacen.guardar(datos, Dominio.hoyISO()), 200);
+    pendiente = setTimeout(() => {
+      Almacen.guardar(datos, Dominio.hoyISO());
+      if (window.Archivo) Archivo.sincronizar();     // espeja al archivo del dispositivo
+    }, 200);
     avisar();
   }
 
