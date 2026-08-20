@@ -252,7 +252,10 @@ const Ajustes = (() => {
         <div class="aviso" style="margin-top:12px">
           <span>📲</span><span><b>Instálala en la pantalla de inicio.</b> Es lo que más protege
           el registro: una app instalada conserva sus datos aunque pasen semanas sin abrirla.</span>
-        </div>`;
+        </div>
+        <p class="cap" style="margin:10px 0 0">¿Buscabas «vincular un archivo»? Esa opción solo
+          existe en computadora con Chrome o Edge; los navegadores de móvil (y Brave o Firefox
+          en escritorio) todavía no la permiten.</p>`;
     }
 
     const al = (sel, fn) => { const b = caja.querySelector(sel); if (b) b.onclick = fn; };
@@ -296,9 +299,16 @@ const Ajustes = (() => {
     al('[data-compartir]', async () => {
       try {
         const ok = await Archivo.compartir();
-        if (ok) { UI.tosti('Respaldo enviado', 'buena'); setTimeout(pintar, 500); }
+        if (ok) { UI.tosti('Respaldo enviado', 'buena'); setTimeout(pintar, 500); return; }
+        // el navegador no deja compartir archivos: al menos que quede la copia
+        Exportar.json();
+        UI.tosti('Tu navegador no permite compartir archivos; lo guardé en Descargas', 'buena');
+        setTimeout(pintar, 500);
       } catch (e) {
-        if (e && e.name !== 'AbortError') UI.tosti('No se pudo compartir', 'mala');
+        if (e && e.name === 'AbortError') return;     // el usuario cerró la hoja
+        Exportar.json();
+        UI.tosti('No se pudo compartir; lo guardé en Descargas', '');
+        setTimeout(pintar, 500);
       }
     });
 

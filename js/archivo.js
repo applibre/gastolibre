@@ -20,7 +20,8 @@ const Archivo = (() => {
   const soportaVinculo = () => typeof window.showSaveFilePicker === 'function';
   const soportaCompartir = () => {
     try {
-      const f = new File(['{}'], 'x.json', { type: 'application/json' });
+      // probamos con .txt: es el tipo que todos los navegadores dejan compartir
+      const f = new File(['x'], 'x.txt', { type: 'text/plain' });
       return !!(navigator.canShare && navigator.canShare({ files: [f] }));
     } catch (_) { return false; }
   };
@@ -130,13 +131,19 @@ const Archivo = (() => {
 
   async function compartir() {
     const texto = JSON.stringify(Exportar.sobre(), null, 2);
-    const archivo = new File([texto], `gastolibre-${Dominio.hoyISO()}.json`, { type: 'application/json' });
-    if (!soportaCompartir()) return false;
-    await navigator.share({
-      files: [archivo],
-      title: 'Respaldo de GastoLibre',
-      text: 'Copia de seguridad de mis gastos',
+    // Android solo deja compartir ciertos tipos: .json suele estar vetado,
+    // asi que si no pasa, va como .txt (el contenido es identico y la app
+    // lo importa igual).
+    const candidatos = [
+      new File([texto], `gastolibre-${Dominio.hoyISO()}.json`, { type: 'application/json' }),
+      new File([texto], `gastolibre-respaldo-${Dominio.hoyISO()}.txt`, { type: 'text/plain' }),
+    ];
+    const archivo = candidatos.find(f => {
+      try { return navigator.canShare && navigator.canShare({ files: [f] }); }
+      catch (_) { return false; }
     });
+    if (!archivo) return false;
+    await navigator.share({ files: [archivo], title: 'Respaldo de GastoLibre' });
     Estado.marcarRespaldo();
     return true;
   }
