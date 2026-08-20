@@ -1,6 +1,6 @@
 /* GastoLibre · funciona sin internet.
    Red primero (para recibir mejoras) y caché como red de seguridad. */
-const CACHE = 'gastolibre-v4';
+const CACHE = 'gastolibre-v5';
 const ARCHIVOS = [
   './', './index.html', './manifest.json',
   './css/style.css',

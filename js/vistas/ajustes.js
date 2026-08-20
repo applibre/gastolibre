@@ -209,6 +209,8 @@ const Ajustes = (() => {
       v = { soportado: false };
       puedeCompartir = false;
     }
+    // si en este dispositivo el compartir ya fallo una vez, no volver a ofrecerlo
+    if (Estado.leer().ajustes.compartirFalla) puedeCompartir = false;
 
     if (v.soportado && v.vinculado) {
       caja.innerHTML = `
@@ -301,13 +303,17 @@ const Ajustes = (() => {
         const ok = await Archivo.compartir();
         if (ok) { UI.tosti('Respaldo enviado', 'buena'); setTimeout(pintar, 500); return; }
         // el navegador no deja compartir archivos: al menos que quede la copia
+        Estado.guardarAjustes({ compartirFalla: true });
         Exportar.json();
-        UI.tosti('Tu navegador no permite compartir archivos; lo guardé en Descargas', 'buena');
+        UI.tosti('Tu navegador no permite compartir; lo guardé en Descargas', 'buena');
         setTimeout(pintar, 500);
       } catch (e) {
         if (e && e.name === 'AbortError') return;     // el usuario cerró la hoja
+        // este navegador no deja compartir: guardamos la copia, lo decimos,
+        // y de aquí en adelante ese botón ya no se ofrece en este dispositivo
+        Estado.guardarAjustes({ compartirFalla: true });
         Exportar.json();
-        UI.tosti('No se pudo compartir; lo guardé en Descargas', '');
+        UI.tosti('Tu navegador no permite compartir; lo guardé en Descargas', '');
         setTimeout(pintar, 500);
       }
     });
