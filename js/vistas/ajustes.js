@@ -218,11 +218,16 @@ const Ajustes = (() => {
         <p class="cap">Cada cambio se escribe también en <b>${esc(v.nombre)}</b>.
           Ese archivo es tuyo: vive fuera del navegador y sobrevive aunque borres los datos del sitio.</p>
         <div class="aviso verde" style="margin-top:0">
-          <span>${v.permiso ? '🔗' : '⚠️'}</span>
+          <span>${v.permiso ? '🔗' : '⏸️'}</span>
           <span>${v.permiso
             ? 'Vinculado y guardando solo.'
-            : 'El navegador pide permiso otra vez para poder escribir.'}</span>
+            : 'En pausa hasta que le des permiso. Tus datos siguen guardándose en la app.'}</span>
         </div>
+        ${!(window.App && App.instalada && App.instalada()) ? `<div class="aviso" style="margin-top:10px">
+          <span>💡</span><span>Para que el permiso quede <b>permanente</b>, usa la app <b>instalada</b>
+          (icono de instalar en la barra de Chrome) y en su diálogo elige
+          <b>«Permitir en cada visita»</b>. En una pestaña normal, Chrome lo olvida al cerrar.</span>
+        </div>` : ''}
         <div class="opciones" style="margin-top:10px">
           ${!v.permiso ? `<button class="opcion" data-reconectar><span class="ic">🔓</span>
             <span>Dar permiso otra vez<small>Cuando Chrome pregunte, elige «Permitir en cada visita»
@@ -275,7 +280,8 @@ const Ajustes = (() => {
 
     al('[data-reconectar]', async () => {
       const r = await Archivo.escribir(true);
-      UI.tosti(r === 'ok' ? 'Archivo reconectado' : 'No se dio el permiso', r === 'ok' ? 'buena' : 'mala');
+      UI.tosti(r === 'ok' ? 'Archivo activo y guardando' : 'Chrome no dio el permiso', r === 'ok' ? 'buena' : 'mala');
+      if (window.App && App.revisarVinculo) App.revisarVinculo();
       pintar();
     });
 

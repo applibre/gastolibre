@@ -119,6 +119,18 @@ h1, h2, h3 { text-wrap: balance; }
   overscroll-behavior: contain;
 }
 
+/* aviso en calma del archivo vinculado: no interrumpe, no desaparece,
+   y un toque lo resuelve */
+.banner-archivo {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; margin-top: 10px; padding: 10px 14px;
+  background: var(--ok-dim); border: 1px solid var(--ok-line);
+  border-radius: var(--r-md);
+  color: var(--ok); font-size: 12.5px; font-weight: 650; text-align: left;
+  flex: 0 0 auto;
+}
+.banner-archivo b { font-weight: 800; }
+
 /* barra "te queda" */
 .queda {
   display: flex; align-items: center; gap: 12px;
@@ -312,11 +324,11 @@ h1, h2, h3 { text-wrap: balance; }
 .nav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
   height: calc(var(--nav-h) + var(--sae)); padding-bottom: var(--sae);
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+  /* fondo sólido: el desenfoque (backdrop-filter) provoca parpadeos al
+     hacer scroll en los Chrome de Android, y aquí no aporta nada esencial */
+  background: var(--bg);
   border-top: 1px solid var(--line-soft);
 }
-@supports not (backdrop-filter: blur(2px)) { .nav { background: var(--bg); } }
 .nav .in { max-width: 560px; margin: 0 auto; height: var(--nav-h); display: grid; grid-template-columns: repeat(3, 1fr); }
 .nav button {
   position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;

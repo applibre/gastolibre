@@ -79,6 +79,44 @@ const App = (() => {
     });
   }
 
+  /* ---------- archivo vinculado: estado en calma ----------
+     Si Chrome olvidó el permiso, NO se lanza ningún diálogo solo: aparece
+     un banner quieto en la pantalla de anotar. Un toque del usuario pide
+     el permiso (dentro de su gesto, como exige Chrome) y el archivo
+     revive. Si en el diálogo elige «Permitir en cada visita», Chrome lo
+     recuerda para siempre y el banner no vuelve a aparecer. */
+
+  const instalada = () => matchMedia('(display-mode: standalone)').matches;
+
+  async function revisarVinculo() {
+    const b = $('#banner-archivo');
+    if (!window.Archivo) { b.classList.add('oculto'); return; }
+    try {
+      const v = await window.Archivo.estadoVinculo();
+      const pausado = v.soportado && v.vinculado && !v.permiso;
+      b.innerHTML = '🔗 El archivo vinculado está en pausa · <b>tócame para activarlo</b>';
+      b.classList.toggle('oculto', !pausado);
+    } catch (_) { b.classList.add('oculto'); }
+  }
+
+  function prepararBanner() {
+    const b = $('#banner-archivo');
+    b.onclick = () => {
+      // la petición corre dentro del toque: es el único momento en que
+      // Chrome permite pedir el permiso
+      window.Archivo.escribir(true).then(r => {
+        if (r === 'ok') {
+          b.classList.add('oculto');
+          UI.tosti(instalada()
+            ? 'Archivo activo y guardando'
+            : 'Archivo activo. Instala la app para que el permiso pueda ser permanente', 'buena');
+        } else {
+          UI.tosti('Chrome no dio el permiso. En su diálogo, elige «Permitir en cada visita»', 'mala');
+        }
+      }).catch(() => UI.tosti('No se pudo activar el archivo', 'mala'));
+    };
+  }
+
   /* ---------- recordatorio de respaldo ---------- */
 
   function revisarRespaldo() {
@@ -125,6 +163,7 @@ const App = (() => {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aplicarTema);
 
     Anotar.iniciar();
+    prepararBanner();
     Resumen.iniciar();
     Ajustes.iniciar();
     prepararImportacion();
@@ -142,13 +181,13 @@ const App = (() => {
       Bienvenida.iniciar();
     } else {
       Almacen.persistir();
-      if (window.Archivo) window.Archivo.prepararReactivacion();
+      revisarVinculo();
       revisarHueco();
       revisarRespaldo();
     }
   }
 
-  return { iniciar, ir, pantalla, aplicarTema, reiniciarInterfaz };
+  return { iniciar, ir, pantalla, aplicarTema, reiniciarInterfaz, revisarVinculo, instalada };
 })();
 
 window.App = App;   // los módulos comprueban window.App antes de usarlo
