@@ -105,7 +105,10 @@ h1, h2, h3 { text-wrap: balance; }
 /* ============ ANOTAR ============ */
 #p-anotar {
   flex-direction: column;
-  height: calc(100dvh - var(--nav-h) - var(--sae));
+  /* el menor de los dos: si la medida de JS se quedara vieja, dvh la limita,
+     y si dvh miente al arrancar (caso de las apps instaladas), manda la medida */
+  height: calc(min(var(--alto-real, 100dvh), 100dvh) - var(--nav-h) - var(--sae));
+  max-height: calc(100dvh - var(--nav-h) - var(--sae));
   overflow-y: auto;
   max-width: 560px;
   margin: 0 auto;
