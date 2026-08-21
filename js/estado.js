@@ -20,7 +20,7 @@ const Estado = (() => {
     clearTimeout(pendiente);
     pendiente = setTimeout(() => {
       Almacen.guardar(datos, Dominio.hoyISO());
-      if (window.Archivo) Archivo.sincronizar();     // espeja al archivo del dispositivo
+      if (window.Archivo) window.Archivo.sincronizar();   // espeja al archivo vinculado
     }, 200);
     avisar();
   }

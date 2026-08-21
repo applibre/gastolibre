@@ -154,3 +154,8 @@ const Archivo = (() => {
     ultimo: () => ultimoIntento,
   };
 })();
+
+// Registro explícito: `const` en el ámbito global de un script clásico no crea
+// una propiedad de window, y el estado comprueba `window.Archivo` para saber si
+// debe espejar cada cambio al archivo vinculado.
+window.Archivo = Archivo;
