@@ -225,7 +225,8 @@ const Ajustes = (() => {
         </div>
         <div class="opciones" style="margin-top:10px">
           ${!v.permiso ? `<button class="opcion" data-reconectar><span class="ic">🔓</span>
-            <span>Dar permiso otra vez<small>Sin esto no puede guardar en el archivo</small></span></button>` : ''}
+            <span>Dar permiso otra vez<small>Cuando Chrome pregunte, elige «Permitir en cada visita»
+            y dejará de pedirlo en cada arranque</small></span></button>` : ''}
           <button class="opcion" data-cargar><span class="ic">📂</span>
             <span>Cargar desde el archivo<small>Trae a la app lo que haya guardado ahí</small></span></button>
           <button class="opcion" data-desvincular><span class="ic">🔌</span>

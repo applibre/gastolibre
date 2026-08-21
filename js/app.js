@@ -142,6 +142,7 @@ const App = (() => {
       Bienvenida.iniciar();
     } else {
       Almacen.persistir();
+      if (window.Archivo) window.Archivo.prepararReactivacion();
       revisarHueco();
       revisarRespaldo();
     }

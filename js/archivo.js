@@ -120,11 +120,38 @@ const Archivo = (() => {
         ultimoIntento = r;
         if (r === 'sin-permiso' && !Archivo._avisado) {
           Archivo._avisado = true;
-          UI.tosti('El archivo vinculado necesita permiso otra vez', '',
-            { texto: 'Reconectar', hacer: () => escribir(true).then(() => UI.tosti('Archivo reconectado', 'buena')) });
+          UI.tosti('El archivo vinculado está pausado', '',
+            { texto: 'Activar', hacer: () => escribir(true).then(x => {
+                if (x === 'ok') UI.tosti('Archivo activo. Elige «Permitir en cada visita» y no volverá a pedirlo', 'buena');
+              }) });
         }
       } catch (_) { ultimoIntento = 'error'; }
     }, 1200);
+  }
+
+  /* ---------- reactivar el permiso con el primer toque ----------
+     Chrome olvida el permiso del archivo al cerrar la app (seguridad).
+     Solo puede volver a pedirse dentro de un gesto del usuario, así que
+     aprovechamos su primer toque de la sesión: el diálogo de Chrome sale
+     una vez, y si elige «Permitir en cada visita», nunca más. */
+  async function prepararReactivacion() {
+    try {
+      if (!soportaVinculo()) return;
+      const h = await leerManija();
+      if (!h || !h.queryPermission) return;
+      const estado = await h.queryPermission({ mode: 'readwrite' });
+      if (estado !== 'prompt') return;     // concedido: nada que hacer; bloqueado: no insistir
+      const alPrimerToque = () => {
+        h.requestPermission({ mode: 'readwrite' }).then(r => {
+          if (r === 'granted') {
+            return escribir(false).then(x => {
+              if (x === 'ok') UI.tosti('Archivo vinculado activo', 'buena');
+            });
+          }
+        }).catch(() => {});
+      };
+      document.addEventListener('pointerdown', alPrimerToque, { capture: true, once: true });
+    } catch (_) { /* sin IndexedDB o sin manija: no pasa nada */ }
   }
 
   /* ---------- compartir (la vía del teléfono) ---------- */
@@ -151,6 +178,7 @@ const Archivo = (() => {
   return {
     soportaVinculo, soportaCompartir,
     vincular, escribir, leer, desvincular, estadoVinculo, sincronizar, compartir,
+    prepararReactivacion,
     ultimo: () => ultimoIntento,
   };
 })();
