@@ -24,40 +24,6 @@ const App = (() => {
 
   const pantalla = () => actual;
 
-  /* ---------- altura real de la pantalla ----------
-     En una app instalada, 100dvh puede calcularse antes de que el sistema
-     aplique sus barras: la pantalla queda más alta de lo que se ve y el
-     teclado se va abajo. Medimos el alto de verdad y lo publicamos como
-     variable de CSS. */
-
-  function medirAlto() {
-    // mientras hay una hoja abierta con un campo enfocado, el teclado del
-    // sistema encoge la ventana: no es la altura real de la app
-    if ($('#hoja').classList.contains('viva')) return;
-    const vv = window.visualViewport;
-    const alto = Math.round((vv && vv.height) || window.innerHeight || 0);
-    if (alto > 200) document.documentElement.style.setProperty('--alto-real', alto + 'px');
-  }
-
-  function vigilarAlto() {
-    medirAlto();
-    // varias pasadas tras cargar: el sistema ajusta sus barras con retraso
-    [0, 60, 200, 500, 1000].forEach(t => setTimeout(medirAlto, t));
-    requestAnimationFrame(() => requestAnimationFrame(medirAlto));
-    window.addEventListener('resize', medirAlto);
-    window.addEventListener('orientationchange', () => setTimeout(medirAlto, 250));
-    window.addEventListener('pageshow', () => setTimeout(medirAlto, 60));
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', medirAlto);
-    // al volver a la app desde otra pantalla
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) setTimeout(medirAlto, 80);
-    });
-    // red de seguridad: Android puede cambiar el alto sin lanzar 'resize'
-    if (window.ResizeObserver) {
-      new ResizeObserver(medirAlto).observe(document.documentElement);
-    }
-  }
-
   /* ---------- tema ---------- */
 
   function aplicarTema() {
@@ -156,7 +122,6 @@ const App = (() => {
     Almacen.escuchar((msg, tono) => UI.tosti(msg, tono === 'error' ? 'mala' : ''));
 
     aplicarTema();
-    vigilarAlto();
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aplicarTema);
 
     Anotar.iniciar();
@@ -182,7 +147,7 @@ const App = (() => {
     }
   }
 
-  return { iniciar, ir, pantalla, aplicarTema, reiniciarInterfaz, medirAlto };
+  return { iniciar, ir, pantalla, aplicarTema, reiniciarInterfaz };
 })();
 
 window.App = App;   // los módulos comprueban window.App antes de usarlo

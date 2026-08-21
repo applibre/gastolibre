@@ -103,16 +103,20 @@ h1, h2, h3 { text-wrap: balance; }
 #p-anotar.viva { display: flex; }
 
 /* ============ ANOTAR ============ */
+/* La pantalla de anotar no calcula su altura: se ancla entre el borde
+   superior y la barra inferior. Así no depende de 100dvh (que miente al
+   arrancar en las apps instaladas) ni de ninguna medida que pueda
+   quedarse vieja: siempre ocupa justo el hueco disponible. */
 #p-anotar {
   flex-direction: column;
-  /* el menor de los dos: si la medida de JS se quedara vieja, dvh la limita,
-     y si dvh miente al arrancar (caso de las apps instaladas), manda la medida */
-  height: calc(min(var(--alto-real, 100dvh), 100dvh) - var(--nav-h) - var(--sae));
-  max-height: calc(100dvh - var(--nav-h) - var(--sae));
-  overflow-y: auto;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  bottom: calc(var(--nav-h) + var(--sae));
   max-width: 560px;
   margin: 0 auto;
   padding: 0 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* barra "te queda" */

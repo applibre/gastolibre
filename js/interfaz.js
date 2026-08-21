@@ -47,8 +47,6 @@ const UI = (() => {
     $('#hoja').classList.remove('viva');
     $('#velo').classList.remove('viva');
     document.body.style.overflow = '';
-    // el teclado del sistema pudo encoger la ventana: volver a medir
-    if (window.App && App.medirAlto) setTimeout(App.medirAlto, 120);
     if (alCerrarHoja) { const f = alCerrarHoja; alCerrarHoja = null; f(); }
   }
 
